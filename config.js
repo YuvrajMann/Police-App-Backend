@@ -4,5 +4,5 @@ module.exports = {
     secretKey:"72345-97890-19843-41309",
     smsKey:"7A25432A462D4A614E645267556B586E",
     twilioAcountSid:"AC12ac914600932e3e4517e4fcbec58507",
-    twilioAuthToken:"66c6f8a5a2e81879ff97dea3df7e90f5"
+    twilioAuthToken:"d0ee93396b2206230c3d2be388e28997"
 };

@@ -35,12 +35,12 @@ router.post("/sendOtp", (req, res, next) => {
   .digest("hex");
   const fullHash = `${hash}.${expires}`;
   let phoneFull=`+91${req.body.phone}`;
-
+  console.log(phoneFull);
   client.messages 
   .create({ 
      body: `Use the OTP ${otp} to signin into your account.This OTP expires in 2 minutes`,  
      from : '+12058583159',      
-     to: phoneFull 
+     to:  req.body.phone
    }) 
   .then(message => console.log(message.sid)) 
   .done();
