@@ -88,7 +88,7 @@ router.post("/signin", (req, res, next) => {
         });
       }
       else{
-        User.create({user_type:req.user_type,phone:phone}).then((resp)=>{
+        User.create({user_type:req.body.user_type,phone:phone}).then((resp)=>{
           User.findById(resp._id).then((usr)=>{
             var token = authenticate.getToken({ _id: usr._id });
             res.statusCode = 200;
