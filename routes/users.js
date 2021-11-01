@@ -43,7 +43,9 @@ router.post("/sendOtp", (req, res, next) => {
      to:  phoneFull
    }) 
   .then(message => console.log(message.sid)) 
-  .done();
+  .catch((err)=>{
+    next(err);
+  });
  
 
   res.statusCode = 200;

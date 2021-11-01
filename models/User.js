@@ -12,6 +12,9 @@ var User=new Schema({
     },
     location:{
         type:mongoose.Schema.Types.Mixed
+    },
+    firebaseToken:{
+        type:String
     }
 });
 

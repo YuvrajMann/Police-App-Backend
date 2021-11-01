@@ -14,4 +14,4 @@ var getDistance = function(p1, p2) {
     return d; // returns the distance in meter
 };
 
-module.exports=getDistance;
+module.exports={getDistance};

@@ -19,3 +19,19 @@ router.put('/updateCoordinates',authenticate.verifyUser,(req,res,next)=>{
    });
 });
 
+router.put('/updateFirebaseToken',authenticate.verifyUser,(req,res,next)=>{
+    User.findById(req.user._id).then((user)=>{
+        user.firebaseToken=req.body.firebaseToken;
+        user.save().then((resp)=>{
+            res.status(200).statusMessage('Firebase tokens updated successfully');
+        })
+        .catch((err)=>{
+            next(err);
+        })
+   })  
+   .catch((err)=>{
+    next(err);
+   });
+});
+
+module.exports=router;

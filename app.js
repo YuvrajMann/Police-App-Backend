@@ -9,6 +9,7 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var mongoose=require('mongoose');
 var config=require('./config');
+var profileRouter=require('./routes/profile');
 
 //connecting to the database
 const connect = mongoose.connect(config.cloudUrl, {
@@ -42,7 +43,7 @@ app.use(cors());
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-
+app.use("/userProfile",profileRouter);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
