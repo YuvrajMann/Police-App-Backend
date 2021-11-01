@@ -40,7 +40,7 @@ router.post("/sendOtp", (req, res, next) => {
   .create({ 
      body: `Use the OTP ${otp} to signin into your account.This OTP expires in 2 minutes`,  
      from : '+12058583159',      
-     to:  req.body.phone
+     to:  phoneFull
    }) 
   .then(message => console.log(message.sid)) 
   .done();

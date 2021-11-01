@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "watch":"nodemon ./bin/www"
+    "watch": "nodemon ./bin/www"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
@@ -24,6 +24,7 @@
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^6.1.0",
+    "socket.io": "^4.3.1",
     "twilio": "^3.70.0"
   }
 }

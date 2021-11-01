@@ -9,6 +9,9 @@ var User=new Schema({
     },
     phone:{
         type:'String'
+    },
+    location:{
+        type:mongoose.Schema.Types.Mixed
     }
 });
 
