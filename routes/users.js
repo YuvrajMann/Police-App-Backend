@@ -14,6 +14,12 @@ const client = require("twilio")(
   config.twilioAuthToken
 );
 
+router.get('/getProfile',(authenticate.verifyUser),(req,res,next) =>{
+  res.statusCode = 200;
+  res.setHeader("Content-Type", "application/json");
+  res.json({ profileInfo: req.user });
+});
+
 //Send the otp for verification
 
 router.post("/sendOtp", (req, res, next) => {

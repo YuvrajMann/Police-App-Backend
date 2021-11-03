@@ -3,13 +3,14 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var cors=require('cors');
+const cors=require('cors');
 var passport = require("passport");
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var mongoose=require('mongoose');
 var config=require('./config');
 var profileRouter=require('./routes/profile');
+var connector=require('./routes/connector').router;
 
 //connecting to the database
 const connect = mongoose.connect(config.cloudUrl, {
@@ -27,6 +28,8 @@ connect.then(
 );
 
 var app = express();
+app.use(cors());
+app.options('*', cors());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -39,11 +42,13 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(passport.initialize());
-app.use(cors());
+
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use("/userProfile",profileRouter);
+app.use('/connector',connector);
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
