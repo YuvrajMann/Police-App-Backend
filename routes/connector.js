@@ -5,6 +5,8 @@ var authenticate = require("../authenticate");
 var distCalculator = require("../distBetween.js");
 const { connect } = require("mongoose");
 const { Socket } = require("socket.io");
+const admin = require("firebase-admin");
+
 let socketConnectedUser = {};
 
 //stop looking for policemen
@@ -44,12 +46,28 @@ let searchPolice = (socket, victimCord, roomId) => {
             if (dist <= radius) {
               //send notification through firebase to this user
               //sendNotification(users[i].firestoreToken)
+              let payload = {
+                data: {
+                  mData: "Hello",
+                },
+                token: users[i].firebaseToken,
+              };
+
+              admin
+                .messaging()
+                .sendToDevice(payload)
+                .then((response) => {
+                  console.log("Successfully sent message:", response);
+                })
+                .catch((err) => {
+                  console.log("Error sending message:", error);
+                });
               booler[i] = true;
             }
           }
         }
-        radius += 30;
-      }, 2000);
+        radius += 30000;
+      }, 60000);
       stopSearching = () => {
         console.log("x");
         clearInterval(refreshIntervalId);
@@ -127,7 +145,6 @@ let intializeInstance = (io) => {
         msg: message,
       });
     });
-    
   });
 };
 

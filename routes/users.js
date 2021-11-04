@@ -48,15 +48,15 @@ router.post("/sendOtp", (req, res, next) => {
      from : '+12058583159',      
      to:  phoneFull
    }) 
-  .then(message => console.log(message.sid)) 
+  .then(message => {res.statusCode = 200;
+    res.setHeader("Content-Type", "application/json");
+    res.json({ secretHash: fullHash });}) 
   .catch((err)=>{
+    console.log('e');
     next(err);
   });
- 
 
-  res.statusCode = 200;
-  res.setHeader("Content-Type", "application/json");
-  res.json({ secretHash: fullHash });
+  
 });
 
 router.post("/signin", (req, res, next) => {

@@ -11,6 +11,13 @@ var mongoose=require('mongoose');
 var config=require('./config');
 var profileRouter=require('./routes/profile');
 var connector=require('./routes/connector').router;
+const { initializeApp } = require('firebase-admin/app');
+const admin = require('firebase-admin')
+var serviceAcount=require('./firebase-sdk.json');
+
+initializeApp({
+  credential: admin.credential.cert(serviceAcount)
+});
 
 //connecting to the database
 const connect = mongoose.connect(config.cloudUrl, {
