@@ -55,8 +55,6 @@ router.post("/sendOtp", (req, res, next) => {
     console.log('e');
     next(err);
   });
-
-  
 });
 
 router.post("/signin", (req, res, next) => {
