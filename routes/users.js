@@ -8,10 +8,14 @@ var authenticate = require("../authenticate");
 const crypto = require("crypto");
 const otpGenerator = require("otp-generator");
 var config = require("../config");
+require('dotenv').config();
+
+let twilioAcountSid=process.env.twilioAcountSid;
+let twilioAuthToken=process.env.twilioAuthToken;
 
 const client = require("twilio")(
-  config.twilioAcountSid,
-  config.twilioAuthToken
+  twilioAcountSid,
+  twilioAuthToken
 );
 
 router.get('/getProfile',(authenticate.verifyUser),(req,res,next) =>{
@@ -45,7 +49,7 @@ router.post("/sendOtp", (req, res, next) => {
   client.messages 
   .create({ 
      body: `Use the OTP ${otp} to signin into your account.This OTP expires in 2 minutes`,  
-     from : '+12058583159',      
+     from : '+12315257873',      
      to:  phoneFull
    }) 
   .then(message => {res.statusCode = 200;
