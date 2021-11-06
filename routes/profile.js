@@ -13,7 +13,10 @@ router.put("/updateCoordinates", authenticate.verifyUser, (req, res, next) => {
         .then((resp) => {
             res.statusCode = 200;
             res.setHeader("Content-Type", "application/json");
-            res.end("User coordinates update successfully");
+            res.json({
+              success: true,
+              status: "User coordinates update successfully",
+            });
         })
         .catch((err) => {
           next(err);
@@ -36,7 +39,10 @@ router.put(
           .then((resp) => {
             res.statusCode = 200;
             res.setHeader("Content-Type", "application/json");
-            res.end("Firebase tokens updated successfully");
+            res.json({
+              success: true,
+              status: "Firebase tokens updated successfully",
+            });
           })
           .catch((err) => {
             next(err);
