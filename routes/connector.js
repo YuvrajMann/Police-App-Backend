@@ -112,7 +112,7 @@ let searchPolice = (socket, victimCord, roomId) => {
           }
         }
         radius += 30000;
-      }, 6000);
+      }, 60000);
 
       stopSearching = () => {
         console.log("x");
