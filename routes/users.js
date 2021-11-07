@@ -25,7 +25,6 @@ router.get('/getProfile',(authenticate.verifyUser),(req,res,next) =>{
 });
 
 //Send the otp for verification
-
 router.post("/sendOtp", (req, res, next) => {
   let phone=req.body.phone;
   //OTP generate

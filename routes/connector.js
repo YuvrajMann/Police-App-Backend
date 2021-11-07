@@ -7,13 +7,51 @@ const { connect } = require("mongoose");
 const { Socket } = require("socket.io");
 const admin = require("firebase-admin");
 
+router.get("/dumConnect", (req, res, next) => {
+  User.find({ phone: 8872365433 })
+    .then((user) => {
+      let token = user[0].firebaseToken;
+      let payload = {
+        notification: {
+          title: "From Node app",
+          body: "great match!",
+        },
+        data: {
+          Nick: "Mario",
+          Room: "PortugalVSDenmark",
+        },
+        token: token,
+      };
+
+      admin
+        .messaging()
+        .send(payload)
+        .then((response) => {
+          console.log("Successfully sent message:", response);
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "application/json");
+          res.json({
+            success: true,
+            status: response,
+          });
+        })
+        .catch((err) => {
+          next(err);
+          console.log("Error sending message:", error);
+        });
+    })
+    .catch((err) => {
+      next(err);
+    });
+});
+
 let socketConnectedUser = {};
 
 //stop looking for policemen
 let stopSearching;
 // looking for police base
 let searchPolice = (socket, victimCord, roomId) => {
-  User.find({ user_type: "police_base" }).then((users) => {
+  User.find({ user_type: "police_user" }).then((users) => {
     //coordinates of the victim
     let lat = victimCord.lat;
     let long = victimCord.long;
@@ -21,6 +59,8 @@ let searchPolice = (socket, victimCord, roomId) => {
     //intial radius we are looking for is 35 km
     let radius = 35000;
     let n = users.length;
+    console.log(users);
+
     let booler = [];
     for (let i = 0; i < n; ++i) {
       booler.push(false);
@@ -37,25 +77,30 @@ let searchPolice = (socket, victimCord, roomId) => {
       refreshIntervalId = setInterval(() => {
         console.log(radius);
         for (let i = 0; i < n; ++i) {
-          if (!booler[i]) {
+          if (!booler[i]&&users[i].location) {
             let dist = distCalculator.getDistance(
-              { lat: users[i].lat, long: users[i].long },
-              { lat: lat, long: long }
+              { lat: users[i].location.lat, lng: users[i].location.lon },
+              { lat: lat, lng: long }
             );
             console.log(dist);
             if (dist <= radius) {
               //send notification through firebase to this user
               //sendNotification(users[i].firestoreToken)
               let payload = {
+                notification: {
+                  title: `Emergency from ${users[i].phone}!`,
+                  body: `User with phone - ${users[i].phone} has raised an emergency alert. Kindly take care of his/her alert`,
+                },
                 data: {
-                  mData: "Hello",
+                  "roomId": String(roomId),
+                  "victimProfile": String(users[i].phone),
                 },
                 token: users[i].firebaseToken,
               };
-
+              console.log('notification to user');
               admin
                 .messaging()
-                .sendToDevice(payload)
+                .send(payload)
                 .then((response) => {
                   console.log("Successfully sent message:", response);
                 })
@@ -67,7 +112,8 @@ let searchPolice = (socket, victimCord, roomId) => {
           }
         }
         radius += 30000;
-      }, 60000);
+      }, 6000);
+
       stopSearching = () => {
         console.log("x");
         clearInterval(refreshIntervalId);
@@ -101,6 +147,32 @@ let intializeInstance = (io) => {
       });
       //Begin Notification sending process
       searchPolice(socket, { lat: lat, long: long }, roomId);
+
+      socket.on("disconnect", () => {
+        //stop looking for police
+        console.log('stop the search');
+        stopSearching();
+        let arr = socketConnectedUser[roomId];
+        let f_arr = [];
+        for (let i = 0; i < arr.length; ++i) {
+          if (arr[i].number != phone_number) {
+            f_arr.push(arr[i]);
+          }
+        }
+        arr = f_arr;
+        console.log(arr);
+        let message;
+        if (arr.length>0&&arr[0].user_type == "victim") {
+          message = "Policeman has left the room";
+        } else {
+          message = "Victim has left the room";
+        }
+        socket.broadcast.to(roomId).emit("chat_message", {
+          sender: "Admin",
+          roomId: roomId,
+          msg: message,
+        });
+      });
     });
 
     socket.on("updateCurrentVictimCoordinates", ({ roomId, newCord }) => {
