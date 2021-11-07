@@ -13,14 +13,18 @@ var profileRouter=require('./routes/profile');
 var connector=require('./routes/connector').router;
 const { initializeApp } = require('firebase-admin/app');
 const admin = require('firebase-admin')
-var serviceAcount=require('./firebase-sdk.json');
+
+let service_acount=process.env.GoogleCred;
+let serviceAcount=JSON.parse(service_acount);
 
 initializeApp({
   credential: admin.credential.cert(serviceAcount)
 });
 
+let cloudUrl=process.env.cloudUrl;
+
 //connecting to the database
-const connect = mongoose.connect(config.cloudUrl, {
+const connect = mongoose.connect(cloudUrl, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
