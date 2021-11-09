@@ -80,7 +80,7 @@ let intializeInstance = (io) => {
           text: `You are now responsible for the victim with phone number ${victimProfile.phone}`,
         });
 
-        socket.broadcast.to(roomId).emit("policeManJoin", {
+        socket.to(roomId).emit("policeManJoin", {
           phone: policeProfile.phone,
           roomId: roomId,
           msg: `Police man with phone ${policeProfile.phone} has received your emergency he will soon contact you`,
