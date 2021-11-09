@@ -89,7 +89,7 @@ let intializeInstance = (io) => {
         socketStopSearch[roomId]();
       }
 
-      if (socketConnectedUser[roomId].length < 2) {
+      if (socketConnectedUser[roomId]&&socketConnectedUser[roomId].length < 2) {
         socket.join(roomId);
         socketConnectedUser[roomId].push({
           number: policeProfile.phone,
