@@ -250,7 +250,7 @@ let intializeInstance = (io) => {
 
       socket.on("chat_message", ({ roomId, senderProfile, message }) => {
         console.log('new chatr');
-        socket.to(roomId).emit("chat_message", {
+        socket.to(roomId).emit("chaat_message", {
           sender: senderProfile,
           roomId: roomId,
           msg: message,
