@@ -75,7 +75,7 @@ let intializeInstance = (io) => {
       });
     });
 
-    socket.on("cancelSearch", () => {
+   socket.on("cancelSearch", ({roomId}) => {
      socketStopSearch[roomId]();
    });
    
