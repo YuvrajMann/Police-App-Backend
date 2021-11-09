@@ -46,12 +46,12 @@ router.get("/dumConnect", (req, res, next) => {
 });
 
 let socketConnectedUser = {};
-let socketStopSearch={};
+let socketStopSearch = {};
 
 let intializeInstance = (io) => {
   io.on("connection", (socket) => {
     console.log("connected to socket");
-    
+
     socket.on("chat_message", ({ roomId, senderProfile, message }) => {
       console.log(message);
       socket.to(roomId).emit("chat_message", {
@@ -67,7 +67,7 @@ let intializeInstance = (io) => {
         participants: socketConnectedUser[roomId],
       });
     });
-    
+
     socket.on("updateCurrentVictimCoordinates", ({ roomId, newCord }) => {
       socket.to(roomId).emit("victimNewCoordinates", {
         updatedCord: newCord,
@@ -75,21 +75,26 @@ let intializeInstance = (io) => {
       });
     });
 
-   socket.on("cancelSearch", ({roomId}) => {
-     socketStopSearch[roomId]();
-   });
-   
+    socket.on("cancelSearch", ({ roomId }) => {
+      if (socketStopSearch[roomId]) {
+        socketStopSearch[roomId]();
+      }
+    });
+
     let stopSearching;
     socket.on("policeManJoin", ({ roomId, victimProfile, policeProfile }) => {
-      console.log('dasdasd');
+      console.log("dasdasd");
       console.log(socketConnectedUser[roomId]);
       //stop looking for police
       // stopSearching();
-      if(socketStopSearch[roomId]){
+      if (socketStopSearch[roomId]) {
         socketStopSearch[roomId]();
       }
 
-      if (socketConnectedUser[roomId]&&socketConnectedUser[roomId].length < 2) {
+      if (
+        socketConnectedUser[roomId] &&
+        socketConnectedUser[roomId].length < 2
+      ) {
         socket.join(roomId);
         socketConnectedUser[roomId].push({
           number: policeProfile.phone,
@@ -117,15 +122,15 @@ let intializeInstance = (io) => {
         let arr = socketConnectedUser[roomId];
         let f_arr = [];
         for (let i = 0; i < arr.length; ++i) {
-          if (arr[i].user_type != 'police') {
+          if (arr[i].user_type != "police") {
             f_arr.push(arr[i]);
           }
         }
-        socketConnectedUser[roomId]=f_arr;
-        console.log("stop the search",roomId,f_arr);
+        socketConnectedUser[roomId] = f_arr;
+        console.log("stop the search", roomId, f_arr);
 
-        let message= "Policeman has left the room";
-      
+        let message = "Policeman has left the room";
+
         socket.to(roomId).emit("chat_message", {
           sender: "Admin",
           roomId: roomId,
@@ -205,7 +210,7 @@ let intializeInstance = (io) => {
               console.log("stop the search");
               clearInterval(refreshIntervalId);
             };
-            socketStopSearch[roomId]=stopSearching;
+            socketStopSearch[roomId] = stopSearching;
           }
         });
       };
@@ -227,7 +232,7 @@ let intializeInstance = (io) => {
       socket.on("disconnect", () => {
         //stop looking for police
         console.log("stop the search");
-        if(socketStopSearch[roomId]){
+        if (socketStopSearch[roomId]) {
           socketStopSearch[roomId]();
         }
         delete socketStopSearch[roomId];
@@ -240,8 +245,8 @@ let intializeInstance = (io) => {
         }
         arr = f_arr;
         console.log(arr);
-        socketConnectedUser[roomId]=arr;
-        let message="Victim has left the room";
+        socketConnectedUser[roomId] = arr;
+        let message = "Victim has left the room";
         socket.to(roomId).emit("chat_message", {
           sender: "Admin",
           roomId: roomId,
