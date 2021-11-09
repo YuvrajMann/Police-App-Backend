@@ -46,6 +46,7 @@ router.get("/dumConnect", (req, res, next) => {
 });
 
 let socketConnectedUser = {};
+let socketStopSearch={};
 
 let intializeInstance = (io) => {
   io.on("connection", (socket) => {
@@ -57,10 +58,72 @@ let intializeInstance = (io) => {
         participants: socketConnectedUser[roomId],
       });
     });
+    let stopSearching;
+    socket.on("policeManJoin", ({ roomId, victimProfile, policeProfile }) => {
+      console.log('dasdasd');
+      console.log(socketConnectedUser[roomId]);
+      //stop looking for police
+      // stopSearching();
+      if(socketStopSearch[roomId]){
+        socketStopSearch[roomId]();
+      }
+
+      if (socketConnectedUser[roomId].length < 2) {
+        socket.join(roomId);
+        socketConnectedUser[roomId].push({
+          number: policeProfile.phone,
+          user_type: "police",
+        });
+
+        socket.emit("joinMessage", {
+          text: `You are now responsible for the victim with phone number ${victimProfile.phone}`,
+        });
+
+        socket.broadcast.to(roomId).emit("policeManJoin", {
+          phone: policeProfile.phone,
+          roomId: roomId,
+          msg: `Police man with phone ${policeProfile.phone} has received your emergency he will soon contact you`,
+        });
+      } else {
+        socket.emit("roomFull", {
+          text: `Victim is already addressed by a policemen`,
+        });
+      }
+
+      socket.on("chat_message", ({ roomId, senderProfile, message }) => {
+        console.log(message);
+        socket.to(roomId).emit("chat_message", {
+          sender: senderProfile,
+          roomId: roomId,
+          msg: message,
+        });
+      });
+
+      socket.on("disconnect", () => {
+        //stop looking for police
+        // stopSearching();
+        let arr = socketConnectedUser[roomId];
+        let f_arr = [];
+        for (let i = 0; i < arr.length; ++i) {
+          if (arr[i].user_type != 'police') {
+            f_arr.push(arr[i]);
+          }
+        }
+        socketConnectedUser[roomId]=f_arr;
+        console.log("stop the search",roomId,f_arr);
+
+        let message= "Policeman has left the room";
+      
+        socket.to(roomId).emit("chat_message", {
+          sender: "Admin",
+          roomId: roomId,
+          msg: message,
+        });
+      });
+    });
 
     socket.on("victimJoin", ({ roomId, lat, long, phone_number }) => {
       //stop looking for policemen
-      let stopSearching;
       // looking for police base
       let searchPolice = (socket, victimCord, roomId) => {
         User.find({ user_type: "police_user" }).then((users) => {
@@ -124,12 +187,13 @@ let intializeInstance = (io) => {
                 }
               }
               radius += 30000;
-            }, 60000);
+            }, 6000);
 
-            stopSearching = () => {
-              console.log("x");
+            let stopSearching = () => {
+              console.log("stop the search");
               clearInterval(refreshIntervalId);
             };
+            socketStopSearch[roomId]=stopSearching;
           }
         });
       };
@@ -151,7 +215,10 @@ let intializeInstance = (io) => {
       socket.on("disconnect", () => {
         //stop looking for police
         console.log("stop the search");
-        stopSearching();
+        if(socketStopSearch[roomId]){
+          socketStopSearch[roomId]();
+        }
+        delete socketStopSearch[roomId];
         let arr = socketConnectedUser[roomId];
         let f_arr = [];
         for (let i = 0; i < arr.length; ++i) {
@@ -161,13 +228,9 @@ let intializeInstance = (io) => {
         }
         arr = f_arr;
         console.log(arr);
-        let message;
-        if (arr.length > 0 && arr[0].user_type == "victim") {
-          message = "Policeman has left the room";
-        } else {
-          message = "Victim has left the room";
-        }
-        socket.broadcast.to(roomId).emit("chat_message", {
+        socketConnectedUser[roomId]=arr;
+        let message="Victim has left the room";
+        socket.to(roomId).emit("chat_message", {
           sender: "Admin",
           roomId: roomId,
           msg: message,
@@ -175,46 +238,19 @@ let intializeInstance = (io) => {
       });
 
       socket.on("updateCurrentVictimCoordinates", ({ roomId, newCord }) => {
-        socket.broadcast.to(roomId).emit("victimNewCoordinates", {
+        socket.to(roomId).emit("victimNewCoordinates", {
           updatedCord: newCord,
           roomId: roomId,
         });
       });
 
       socket.on("cancelSearch", () => {
-        stopSearching();
-      });
-
-      socket.on("policeManJoin", ({ roomId, victimProfile, policeProfile }) => {
-        console.log(socketConnectedUser[roomId]);
-        //stop looking for police
-        stopSearching();
-
-        if (socketConnectedUser[roomId].length < 2) {
-          socket.join(roomId);
-          socketConnectedUser[roomId].push({
-            number: policeProfile.phone,
-            user_type: "police",
-          });
-
-          socket.emit("joinMessage", {
-            text: `You are now responsible for the victim with phone number ${victimProfile.phone}`,
-          });
-
-          socket.broadcast.to(roomId).emit("policeManJoin", {
-            phone: policeProfile.phone,
-            roomId: roomId,
-            msg: `Police man with phone ${policeProfile.phone} has received your emergency he will soon contact you`,
-          });
-        } else {
-          socket.emit("roomFull", {
-            text: `Victim is already addressed by a policemen`,
-          });
-        }
-      });
+       socketStopSearch[roomId]();
+     });
 
       socket.on("chat_message", ({ roomId, senderProfile, message }) => {
-        socket.broadcast.to(roomId).emit("chat_message", {
+        console.log('new chatr');
+        socket.to(roomId).emit("chat_message", {
           sender: senderProfile,
           roomId: roomId,
           msg: message,
