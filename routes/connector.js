@@ -58,6 +58,7 @@ let intializeInstance = (io) => {
         participants: socketConnectedUser[roomId],
       });
     });
+    
     let stopSearching;
     socket.on("policeManJoin", ({ roomId, victimProfile, policeProfile }) => {
       console.log('dasdasd');
@@ -250,7 +251,7 @@ let intializeInstance = (io) => {
 
       socket.on("chat_message", ({ roomId, senderProfile, message }) => {
         console.log('new chatr');
-        socket.to(roomId).emit("chaat_message", {
+        socket.to(roomId).emit("chat_message", {
           sender: senderProfile,
           roomId: roomId,
           msg: message,
