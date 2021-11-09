@@ -51,6 +51,15 @@ let socketStopSearch={};
 let intializeInstance = (io) => {
   io.on("connection", (socket) => {
     console.log("connected to socket");
+    
+    socket.on("chat_message", ({ roomId, senderProfile, message }) => {
+      console.log(message);
+      socket.to(roomId).emit("chat_message", {
+        sender: senderProfile,
+        roomId: roomId,
+        msg: message,
+      });
+    });
 
     socket.on("getRoomParticipants", ({ roomId }) => {
       console.log("x");
@@ -59,6 +68,17 @@ let intializeInstance = (io) => {
       });
     });
     
+    socket.on("updateCurrentVictimCoordinates", ({ roomId, newCord }) => {
+      socket.to(roomId).emit("victimNewCoordinates", {
+        updatedCord: newCord,
+        roomId: roomId,
+      });
+    });
+
+    socket.on("cancelSearch", () => {
+     socketStopSearch[roomId]();
+   });
+   
     let stopSearching;
     socket.on("policeManJoin", ({ roomId, victimProfile, policeProfile }) => {
       console.log('dasdasd');
@@ -90,15 +110,6 @@ let intializeInstance = (io) => {
           text: `Victim is already addressed by a policemen`,
         });
       }
-
-      socket.on("chat_message", ({ roomId, senderProfile, message }) => {
-        console.log(message);
-        socket.to(roomId).emit("chat_message", {
-          sender: senderProfile,
-          roomId: roomId,
-          msg: message,
-        });
-      });
 
       socket.on("disconnect", () => {
         //stop looking for police
@@ -233,26 +244,6 @@ let intializeInstance = (io) => {
         let message="Victim has left the room";
         socket.to(roomId).emit("chat_message", {
           sender: "Admin",
-          roomId: roomId,
-          msg: message,
-        });
-      });
-
-      socket.on("updateCurrentVictimCoordinates", ({ roomId, newCord }) => {
-        socket.to(roomId).emit("victimNewCoordinates", {
-          updatedCord: newCord,
-          roomId: roomId,
-        });
-      });
-
-      socket.on("cancelSearch", () => {
-       socketStopSearch[roomId]();
-     });
-
-      socket.on("chat_message", ({ roomId, senderProfile, message }) => {
-        console.log('new chatr');
-        socket.to(roomId).emit("chat_message", {
-          sender: senderProfile,
           roomId: roomId,
           msg: message,
         });
