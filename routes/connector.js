@@ -119,7 +119,7 @@ let intializeInstance = (io) => {
                 msg: `Police man with phone ${policeProfile.phone} has received your emergency he will soon contact you`,
               });
             } else {
-              socket.("roomFull", {
+              socket.emit("roomFull", {
                 text: `Victim is already addressed by a policemen`,
               });
             }
