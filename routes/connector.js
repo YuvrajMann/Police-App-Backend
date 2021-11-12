@@ -182,8 +182,8 @@ let intializeInstance = (io) => {
                     //sendNotification(users[i].firestoreToken)
                     let payload = {
                       notification: {
-                        title: `Emergency from ${users[i].phone}!`,
-                        body: `User with phone - ${users[i].phone} has raised an emergency alert. Kindly take care of his/her alert`,
+                        title: `Emergency from ${phone_number} ⚠️`,
+                        body: `User with phone - ${phone_number} has raised an emergency alert. Kindly take care of his/her alert`,
                       },
                       data: {
                         roomId: String(roomId),
