@@ -62,13 +62,15 @@ let intializeInstance = (io) => {
     });
 
     socket.on("getRoomParticipants", ({ roomId }) => {
-      console.log("x");
+      console.log("x");    
       socket.emit("roomParticipants", {
-        participants: socketConnectedUser[roomId],
+        participants:  {len:io.sockets.adapter.rooms.get(roomId).size,room}
       });
+      
     });
 
     socket.on("updateCurrentVictimCoordinates", ({ roomId, newCord }) => {
+      console.log('Coordinates received',newCord);
       socket.to(roomId).emit("victimNewCoordinates", {
         updatedCord: newCord,
         roomId: roomId,
@@ -203,7 +205,7 @@ let intializeInstance = (io) => {
                   }
                 }
               }
-              radius += 30000;
+              radius += 5000;
             }, 6000);
 
             let stopSearching = () => {
