@@ -9,7 +9,7 @@ router.get("/getRequest", authenticate.verifyUser, (req, res, next) => {
   let usr=req.user;
 
   if(usr.user_type.toString()=="police_user"){
-    Request.find({police:usr._id})
+    Request.find({police:usr._id}).populate('victim').populate('police')
     .then((resp) => {
       res.statusCode = 200;
       res.setHeader("Content-Type", "application/json");
@@ -23,7 +23,7 @@ router.get("/getRequest", authenticate.verifyUser, (req, res, next) => {
     });
   }
   else if(usr.user_type.toString()=="normal_user"){
-    Request.find({victim:usr._id})
+    Request.find({victim:usr._id}).populate('victim').populate('police')
     .then((resp) => {
       res.statusCode = 200;
       res.setHeader("Content-Type", "application/json");
