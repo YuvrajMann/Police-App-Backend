@@ -69,7 +69,7 @@ let intializeInstance = (io) => {
       
     });
 
-    socket.on("updateCurrentVictimCoordinates", ({ roomId, newCord }) => {
+    socket.on("victimNewCoordinates", ({ roomId, newCord }) => {
       console.log('Coordinates received',newCord);
       socket.to(roomId).emit("victimNewCoordinates", {
         updatedCord: newCord,
