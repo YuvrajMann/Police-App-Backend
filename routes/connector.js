@@ -93,7 +93,7 @@ let intializeInstance = (io) => {
         socketStopSearch[roomId]();
       }
 
-      User.find({phone:policeProfile}).then((usr)=>{
+      User.find({phone:policeProfile.phone}).then((usr)=>{
         Request.findById(requestId).then((resp)=>{
           resp.police=usr._id;
           resp.status="ongoing";
