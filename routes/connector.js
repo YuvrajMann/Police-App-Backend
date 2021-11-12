@@ -6,6 +6,7 @@ var distCalculator = require("../distBetween.js");
 const { connect } = require("mongoose");
 const { Socket } = require("socket.io");
 const admin = require("firebase-admin");
+var Request = require("../models/Request");
 
 router.get("/dumConnect", (req, res, next) => {
   User.find({ phone: 8872365433 })
@@ -62,15 +63,14 @@ let intializeInstance = (io) => {
     });
 
     socket.on("getRoomParticipants", ({ roomId }) => {
-      console.log("x");    
+      console.log("x");
       socket.emit("roomParticipants", {
-        participants:  {len:io.sockets.adapter.rooms.get(roomId).size,room}
+        participants: { len: io.sockets.adapter.rooms.get(roomId).size, room },
       });
-      
     });
 
     socket.on("victimNewCoordinates", ({ roomId, newCord }) => {
-      console.log('Coordinates received',newCord);
+      console.log("Coordinates received", newCord);
       socket.to(roomId).emit("victimNewCoordinates", {
         updatedCord: newCord,
         roomId: roomId,
@@ -84,7 +84,7 @@ let intializeInstance = (io) => {
     });
 
     let stopSearching;
-    socket.on("policeManJoin", ({ roomId, victimProfile, policeProfile }) => {
+    socket.on("policeManJoin", ({ roomId, victimProfile, policeProfile,requestId }) => {
       console.log("dasdasd");
       console.log(socketConnectedUser[roomId]);
       //stop looking for police
@@ -93,31 +93,48 @@ let intializeInstance = (io) => {
         socketStopSearch[roomId]();
       }
 
-      if (
-        socketConnectedUser[roomId] &&
-        socketConnectedUser[roomId].length < 2
-      ) {
-        socket.join(roomId);
-        socketConnectedUser[roomId].push({
-          number: policeProfile.phone,
-          user_type: "police",
-        });
-
-        socket.emit("joinMessage", {
-          text: `You are now responsible for the victim with phone number ${victimProfile.phone}`,
-        });
-
-        socket.to(roomId).emit("policeManJoin", {
-          phone: policeProfile.phone,
-          roomId: roomId,
-          msg: `Police man with phone ${policeProfile.phone} has received your emergency he will soon contact you`,
-        });
-      } else {
-        socket.emit("roomFull", {
-          text: `Victim is already addressed by a policemen`,
-        });
-      }
-
+      User.findById(policeProfile).then((usr)=>{
+        Request.findById(requestId).then((resp)=>{
+          resp.police=usr._id;
+          resp.status="ongoing";
+          resp.save().then((nex)=>{
+            console.log('Request Updated',nex);
+            if (
+              socketConnectedUser[roomId] &&
+              socketConnectedUser[roomId].length < 2
+            ) {
+              socket.join(roomId);
+              socketConnectedUser[roomId].push({
+                number: policeProfile.phone,
+                user_type: "police",
+              });
+      
+              socket.emit("joinMessage", {
+                text: `You are now responsible for the victim with phone number ${victimProfile.phone}`,
+              });
+      
+              socket.to(roomId).emit("policeManJoin", {
+                phone: policeProfile.phone,
+                roomId: roomId,
+                msg: `Police man with phone ${policeProfile.phone} has received your emergency he will soon contact you`,
+              });
+            } else {
+              socket.emit("roomFull", {
+                text: `Victim is already addressed by a policemen`,
+              });
+            }
+          })
+          .catch((err)=>{
+            console.log('Error is there',err)
+          });
+        })
+        .catch((err)=>{
+          console.log('Error is there',err)
+        });  
+      })
+      .catch((err)=>{
+        console.log('Error is there',err)
+      });
       socket.on("disconnect", () => {
         //stop looking for police
         // stopSearching();
@@ -144,7 +161,7 @@ let intializeInstance = (io) => {
     socket.on("victimJoin", ({ roomId, lat, long, phone_number }) => {
       //stop looking for policemen
       // looking for police base
-      let searchPolice = (socket, victimCord, roomId) => {
+      let searchPolice = (socket, victimCord, roomId,requestId) => {
         User.find({ user_type: "police_user" }).then((users) => {
           //coordinates of the victim
           let lat = victimCord.lat;
@@ -188,6 +205,7 @@ let intializeInstance = (io) => {
                       data: {
                         roomId: String(roomId),
                         victimProfile: String(users[i].phone),
+                        requestId:requestId
                       },
                       token: users[i].firebaseToken,
                     };
@@ -201,6 +219,7 @@ let intializeInstance = (io) => {
                       .catch((err) => {
                         console.log("Error sending message:", error);
                       });
+
                     booler[i] = true;
                   }
                 }
@@ -222,14 +241,37 @@ let intializeInstance = (io) => {
       });
 
       console.log("victim joined the socket", roomId);
-      socket.join(roomId);
-      socketConnectedUser[roomId] = [];
-      socketConnectedUser[roomId].push({
-        number: phone_number,
-        user_type: "victim",
-      });
-      //Begin Notification sending process
-      searchPolice(socket, { lat: lat, long: long }, roomId);
+
+      //Creating a request in the DB
+      User.find({
+        phone: phone_number,
+      })
+        .then((usr) => {
+          Request.create({
+            victim: usr._id,
+            status: "pending",
+            roomId: roomId,
+          })
+            .then((resp) => {
+              socket.join(roomId);
+              socketConnectedUser[roomId] = [];
+              socketConnectedUser[roomId].push({
+                number: phone_number,
+                user_type: "victim",
+              });
+              let requestId = resp._id;
+              //Begin Notification sending process
+              searchPolice(socket, { lat: lat, long: long }, roomId, requestId);
+
+              console.log(resp);
+            })
+            .catch((err) => {
+              console.log('Error is there',err)
+            });
+        })
+        .catch((err) => {
+          console.log('Error is there',err)
+        });
 
       socket.on("disconnect", () => {
         //stop looking for police

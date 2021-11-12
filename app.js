@@ -13,6 +13,7 @@ var profileRouter=require('./routes/profile');
 var connector=require('./routes/connector').router;
 const { initializeApp } = require('firebase-admin/app');
 const admin = require('firebase-admin')
+const Request=require('./routes/Request');
 
 let service_acount=process.env.GoogleCred;
 let serviceAcount=JSON.parse(service_acount);
@@ -59,6 +60,7 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use("/userProfile",profileRouter);
 app.use('/connector',connector);
+app.use('/request',Request);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

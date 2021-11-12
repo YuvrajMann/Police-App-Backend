@@ -15,6 +15,9 @@ var User=new Schema({
     },
     firebaseToken:{
         type:String
+    },
+    duty_flag:{
+        type:String,
     }
 });
 
