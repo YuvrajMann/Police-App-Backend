@@ -26,7 +26,7 @@ router.get("/getRequest", authenticate.verifyUser, (req, res, next) => {
       res.setHeader("Content-Type", "application/json");
       res.json({
         success: true,
-        status: resp,
+        status: f_arr,
       });
     })
     .catch((err) => {
