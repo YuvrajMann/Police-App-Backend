@@ -82,7 +82,26 @@ let intializeInstance = (io) => {
         socketStopSearch[roomId]();
       }
     });
-
+    socket.on("endTask",({request_id})=>{
+        Request.findById(requestId).then((request)=>{
+          request['status']='completed';
+          
+          request.save().then((resp)=>{
+              res.statusCode = 200;
+              res.setHeader("Content-Type", "application/json");
+              res.json({
+                  success: true,
+                  status: resp,
+              });
+          })
+          .catch((err)=>{
+              next(err);
+          });
+      })
+      .catch((err)=>{
+          next(err);
+      });
+    });
     let stopSearching;
     socket.on("policeManJoin", ({ roomId, victimProfile, policeProfile,requestId }) => {
       console.log("dasdasd");
