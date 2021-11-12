@@ -247,12 +247,14 @@ let intializeInstance = (io) => {
         phone: phone_number,
       })
         .then((usr) => {
+          console.log(usr);
           Request.create({
             victim: usr._id,
             status: "pending",
             roomId: roomId,
           })
             .then((resp) => {
+              console.log(resp);
               socket.join(roomId);
               socketConnectedUser[roomId] = [];
               socketConnectedUser[roomId].push({
@@ -263,7 +265,6 @@ let intializeInstance = (io) => {
               //Begin Notification sending process
               searchPolice(socket, { lat: lat, long: long }, roomId, requestId);
 
-              console.log(resp);
             })
             .catch((err) => {
               console.log('Error is there',err)
