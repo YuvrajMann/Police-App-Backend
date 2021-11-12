@@ -19,7 +19,7 @@ router.get("/getRequest", authenticate.verifyUser, (req, res, next) => {
     });
 });
 
-router.post('/changeStatus/:requestId',authenticate.verifyUser).then(()=>{
+router.post('/changeStatus/:requestId',authenticate.verifyUser,(req,res,next)=>{
     Request.find({id:req.params.requestId}).then((request)=>{
         request['status']=req.body.status;
         request.save().then((resp)=>{
@@ -38,8 +38,6 @@ router.post('/changeStatus/:requestId',authenticate.verifyUser).then(()=>{
         next(err);
     });
 })
-.catch((err)=>{
-    next(err);
-});
+
 
 module.exports=router;
