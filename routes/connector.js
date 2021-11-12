@@ -94,8 +94,9 @@ let intializeInstance = (io) => {
       }
 
       User.find({phone:policeProfile.phone}).then((usr)=>{
+        console.log('Request',requestId);
         Request.findById(requestId).then((resp)=>{
-          resp.police=usr._id;
+          resp.police=usr[0]._id;
           resp.status="ongoing";
           resp.save().then((nex)=>{
             console.log('Request Updated',nex);
@@ -241,6 +242,7 @@ let intializeInstance = (io) => {
       });
 
       console.log("victim joined the socket", roomId);
+      console.log(phone_number);
 
       //Creating a request in the DB
       User.find({
@@ -249,7 +251,7 @@ let intializeInstance = (io) => {
         .then((usr) => {
           console.log(usr);
           Request.create({
-            victim: usr._id,
+            victim: usr[0]._id,
             status: "pending",
             roomId: roomId,
           })

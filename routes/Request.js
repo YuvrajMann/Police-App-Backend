@@ -4,8 +4,12 @@ var User = require("../models/User.js");
 var authenticate = require("../authenticate");
 var Request = require("../models/Request");
 
+
 router.get("/getRequest", authenticate.verifyUser, (req, res, next) => {
-  Request.find({})
+  let usr=req.user;
+
+  if(usr.user_type.toString()=="police_user"){
+    Request.find({police:usr._id})
     .then((resp) => {
       res.statusCode = 200;
       res.setHeader("Content-Type", "application/json");
@@ -17,6 +21,22 @@ router.get("/getRequest", authenticate.verifyUser, (req, res, next) => {
     .catch((err) => {
       next(err);
     });
+  }
+  else if(usr.user_type.toString()=="normal_user"){
+    Request.find({victim:usr._id})
+    .then((resp) => {
+      res.statusCode = 200;
+      res.setHeader("Content-Type", "application/json");
+      res.json({
+        success: true,
+        status: resp,
+      });
+    })
+    .catch((err) => {
+      next(err);
+    });
+  }
+    
 });
 
 router.post('/changeStatus/:requestId',authenticate.verifyUser,(req,res,next)=>{
