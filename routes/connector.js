@@ -119,7 +119,7 @@ let intializeInstance = (io) => {
                 msg: `Police man with phone ${policeProfile.phone} has received your emergency he will soon contact you`,
               });
             } else {
-              socket.emit("roomFull", {
+              socket.("roomFull", {
                 text: `Victim is already addressed by a policemen`,
               });
             }
@@ -205,7 +205,7 @@ let intializeInstance = (io) => {
                       data: {
                         roomId: String(roomId),
                         victimProfile: String(users[i].phone),
-                        requestId:requestId
+                        requestId:String(requestId)
                       },
                       token: users[i].firebaseToken,
                     };
