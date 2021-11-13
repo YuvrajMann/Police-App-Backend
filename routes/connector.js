@@ -226,7 +226,7 @@ let intializeInstance = (io) => {
                         roomId: String(roomId),
                         victimProfile: String(users[i].phone),
                         requestId:String(requestId),
-                        victimCoordinates:victimCord
+                        // victimCoordinates:String(JSON.stringify(victimCord)
                       },
                       token: users[i].firebaseToken,
                     };
