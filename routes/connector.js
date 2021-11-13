@@ -225,8 +225,7 @@ let intializeInstance = (io) => {
                       data: {
                         roomId: String(roomId),
                         victimProfile: String(users[i].phone),
-                        requestId:String(requestId),
-                        // victimCoordinates:String(JSON.stringify(victimCord)
+                        requestId:String(requestId)
                       },
                       token: users[i].firebaseToken,
                     };
@@ -274,10 +273,6 @@ let intializeInstance = (io) => {
             victim: usr[0]._id,
             status: "pending",
             roomId: roomId,
-            coordinatesVictim:{
-              lat:lat,
-              long:long
-            }
           })
             .then((resp) => {
               console.log(resp);
