@@ -40,11 +40,22 @@ router.get("/getRequest", authenticate.verifyUser, (req, res, next) => {
       .populate("victim")
       .populate("police")
       .then((resp) => {
+        let f_arr = [];
+
+        for (let i = 0; i < resp.length; ++i) {
+          let obj = resp[i];
+          const clone = JSON.parse(JSON.stringify(obj));
+          clone["date"] = moment(resp[i].createdAt).format("DD/MM/YYYY");
+          clone["time"] = moment(resp[i].createdAt).format("hh:mm");
+          console.log(clone);
+          f_arr.push(clone);
+        }
+
         res.statusCode = 200;
         res.setHeader("Content-Type", "application/json");
         res.json({
           success: true,
-          status: resp,
+          status: f_arr,
         });
       })
       .catch((err) => {
