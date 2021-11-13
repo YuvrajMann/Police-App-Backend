@@ -17,7 +17,10 @@ var Request=new Schema(
         },
         roomId:{
             type:String
-        }
+        },
+        coordinatesVictim:{
+            type:mongoose.Schema.Types.Mixed
+        },
     },{
         timestamps:true
     }

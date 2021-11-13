@@ -53,6 +53,21 @@ router.get("/getRequest", authenticate.verifyUser, (req, res, next) => {
   }
 });
 
+router.get("getRequest/:requestId",authenticate.verifyUser,(req,res,next)=>{
+  let request_id=req.params.requestId;
+  Request.findById(request_id).then((resp)=>{
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "application/json");
+    res.json({
+      success: true,
+      status: resp,
+    });
+  })
+  .catch((err)=>{
+    next(err);
+  })
+});
+
 router.post(
   "/changeStatus/:requestId",
   authenticate.verifyUser,
