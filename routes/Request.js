@@ -69,7 +69,7 @@ router.get(
   authenticate.verifyUser,
   (req, res, next) => {
     let request_id = req.params.requestId;
-    Request.findById(request_id)
+    Request.find({_id:request_id})
       .populate("victim")
       .populate("police")
       .then((resp) => {
